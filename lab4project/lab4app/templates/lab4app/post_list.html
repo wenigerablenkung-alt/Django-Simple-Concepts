@@ -1,0 +1,86 @@
+{% extends "lab4app/base.html" %}
+{% block title %}Posts — CRUD Demo{% endblock %}
+{% block content %}
+<span class="concept-tag">CONCEPT 4 — Database CRUD + ORM</span>
+<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+    <div>
+        <h1>Blog Posts</h1>
+        <p>Demonstrating Create, Read, Update, Delete with Django ORM.</p>
+    </div>
+    {% if user.is_authenticated %}
+        <a href="{% url 'post_create' %}" class="btn btn-success">+ New Post</a>
+    {% endif %}
+</div>
+
+<div class="card">
+    <form method="get" style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Search posts..." class="form-control" style="flex:1; min-width:200px;">
+        <select name="category" class="form-control" style="width:auto;">
+            <option value="">All categories</option>
+            {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">Search</button>
+        {% if search_query or selected_category %}
+            <a href="{% url 'post_list' %}" class="btn btn-secondary">Clear</a>
+        {% endif %}
+    </form>
+</div>
+
+{% for post in posts %}
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div style="flex:1;">
+            <h2 style="font-size:1.2rem; margin-bottom:0.4rem;">
+                <a href="{% url 'post_detail' post.pk %}" style="color:#f1f5f9; text-decoration:none;">{{ post.title }}</a>
+            </h2>
+            <div class="text-muted" style="margin-bottom:0.75rem;">
+                By <strong>{{ post.author.username }}</strong> ·
+                {{ post.created_at|date:"M d, Y" }} ·
+                👁 {{ post.view_count }} views ·
+                💬 {{ post.comment_count }} comments
+            </div>
+            <p>{{ post.content|truncatechars:180 }}</p>
+            {% for cat in post.categories.all %}
+                <span class="concept-tag" style="font-size:0.7rem;">{{ cat.name }}</span>
+            {% endfor %}
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.4rem; margin-left:1rem;">
+            <a href="{% url 'post_detail' post.pk %}" class="btn btn-secondary btn-sm">View</a>
+            {% if user == post.author %}
+                <a href="{% url 'post_update' post.pk %}" class="btn btn-primary btn-sm">Edit</a>
+                <a href="{% url 'post_delete' post.pk %}" class="btn btn-danger btn-sm">Delete</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% empty %}
+<div class="card" style="text-align:center; padding:3rem;">
+    <p>No posts found. {% if user.is_authenticated %}<a href="{% url 'post_create' %}">Create the first one!</a>{% endif %}</p>
+</div>
+{% endfor %}
+
+<div class="card">
+    <div class="card-title">📖 ORM Queries Used on This Page</div>
+    <pre># Filter: WHERE status = 'published'
+posts = Post.objects.filter(status='published')
+
+# Search with Q objects (OR conditions)
+posts = posts.filter(
+    Q(title__icontains=query) |
+    Q(content__icontains=query)
+)
+
+# Annotate: add COUNT as computed column
+posts = posts.annotate(
+    comment_count=Count('comments')
+)
+
+# select_related: JOIN to avoid N+1 queries
+posts = posts.select_related('author')
+
+# prefetch_related: for ManyToMany
+posts = posts.prefetch_related('categories')</pre>
+</div>
+{% endblock %}

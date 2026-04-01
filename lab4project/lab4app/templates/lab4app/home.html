@@ -1,0 +1,44 @@
+{% extends "lab4app/base.html" %}
+{% block title %}Home — Django Learning{% endblock %}
+
+{% block content %}
+<div style="text-align:center; padding: 3rem 0 2rem;">
+    <h1 style="font-size:2.5rem; background: linear-gradient(135deg, #38bdf8, #818cf8); background-clip:text; -webkit-text-fill-color:transparent;">
+        Django Learning App
+    </h1>
+    <p style="font-size:1.1rem; max-width:600px; margin: 1rem auto;">
+        A fully annotated Django project covering every core concept —
+        from requests to authentication to middleware.
+    </p>
+</div>
+
+<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:1rem; margin-bottom: 2rem;">
+    <div class="card" style="text-align:center;">
+        <div style="font-size:2rem; margin-bottom:0.5rem;">📝</div>
+        <div style="font-size:1.5rem; font-weight:700; color:#38bdf8;">{{ stats.total_posts }}</div>
+        <div class="text-muted">Total Posts</div>
+    </div>
+    <div class="card" style="text-align:center;">
+        <div style="font-size:2rem; margin-bottom:0.5rem;">✅</div>
+        <div style="font-size:1.5rem; font-weight:700; color:#10b981;">{{ stats.published_posts }}</div>
+        <div class="text-muted">Published</div>
+    </div>
+    <div class="card" style="text-align:center;">
+        <div style="font-size:2rem; margin-bottom:0.5rem;">🏷️</div>
+        <div style="font-size:1.5rem; font-weight:700; color:#818cf8;">{{ stats.total_categories }}</div>
+        <div class="text-muted">Categories</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-title">📚 Concepts Covered</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+        <a href="{% url 'request_demo' %}" class="btn btn-secondary" style="text-align:center;">1. Requests & Responses</a>
+        <a href="{% url 'form_demo' %}" class="btn btn-secondary" style="text-align:center;">2. Form Data Handling</a>
+        <a href="{% url 'session_demo' %}" class="btn btn-secondary" style="text-align:center;">3. Sessions & Cookies</a>
+        <a href="{% url 'post_list' %}" class="btn btn-secondary" style="text-align:center;">4. Database CRUD + ORM</a>
+        <a href="{% url 'register' %}" class="btn btn-secondary" style="text-align:center;">5. Authentication</a>
+        <a href="{% url 'middleware_demo' %}" class="btn btn-secondary" style="text-align:center;">6. Middleware</a>
+    </div>
+</div>
+{% endblock %}

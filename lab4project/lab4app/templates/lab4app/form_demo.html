@@ -1,0 +1,103 @@
+{% extends "lab4app/base.html" %}
+{% block title %}Form Demo{% endblock %}
+{% block content %}
+<span class="concept-tag">CONCEPT 2 — Form Data Handling</span>
+<h1>Django Form Handling</h1>
+<p>Django forms handle validation, sanitization, and error display automatically.</p>
+
+<div class="grid-2">
+<div>
+<div class="card">
+    <div class="card-title">📋 Contact Form</div>
+
+    <!--
+    method="post" → send data in request body (not URL)
+    action=""      → submit to current URL (same view handles GET and POST)
+    -->
+    <form method="post" action="">
+        {% csrf_token %}
+        <!-- The CSRF token is a hidden field Django uses to verify the form
+             was submitted from YOUR site, not a malicious one. -->
+
+        {% for field in form %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+                <small class="text-muted">{{ field.help_text }}</small>
+            {% endif %}
+            {% if field.errors %}
+                <ul class="errorlist">
+                {% for error in field.errors %}
+                    <li>⚠️ {{ error }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <!-- Non-field errors (from clean() method) -->
+        {% if form.non_field_errors %}
+            <div class="alert alert-error">
+                {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+            </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary">Send Message</button>
+    </form>
+</div>
+</div>
+
+<div>
+<div class="card">
+    <div class="card-title">⚙️ How Django Forms Work</div>
+    <pre># forms.py
+class ContactForm(forms.Form):
+    name = forms.CharField(max_length=100)
+    email = forms.EmailField()
+    message = forms.CharField(
+        widget=forms.Textarea,
+        min_length=10
+    )
+    
+    # Custom validation
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if '@spam.com' in email:
+            raise forms.ValidationError(
+                "Spam not allowed!"
+            )
+        return email  # Always return!</pre>
+</div>
+
+<div class="card">
+    <div class="card-title">🔄 PRG Pattern (Post-Redirect-Get)</div>
+    <pre># views.py
+def form_demo(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            # Process the data...
+            name = form.cleaned_data['name']
+            
+            # PRG: redirect after POST
+            # Prevents duplicate submission on F5
+            messages.success(request, "Sent!")
+            return redirect('form_demo')
+        # If invalid: fall through to render
+        # The form contains error messages
+    else:
+        form = ContactForm()  # Empty form
+    
+    return render(request, 'form.html',
+                  {'form': form})</pre>
+</div>
+
+<div class="card">
+    <div class="card-title">🛡️ CSRF Protection</div>
+    <p>Every POST form needs <code>{% verbatim %}{% csrf_token %}{% endverbatim %}</code>.</p>
+    <p>Django generates a random token, embeds it in the form, and verifies it matches when the form is submitted. This prevents Cross-Site Request Forgery attacks.</p>
+</div>
+</div>
+</div>
+{% endblock %}

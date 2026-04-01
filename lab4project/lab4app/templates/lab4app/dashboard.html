@@ -1,0 +1,91 @@
+{% extends "lab4app/base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<span class="concept-tag">CONCEPT 5 — Authentication & Authorization</span>
+<h1>👤 Dashboard</h1>
+<p>This page is protected by <code>@login_required</code>. Only authenticated users can see it.</p>
+
+<div class="grid-2">
+<div>
+<div class="card">
+    <div class="card-title">Your Profile</div>
+    <table>
+        <tr><th>Username</th><td><strong>{{ user.username }}</strong></td></tr>
+        <tr><th>Email</th><td>{{ user.email|default:"Not set" }}</td></tr>
+        <tr><th>Joined</th><td>{{ user.date_joined|date:"M d, Y" }}</td></tr>
+        <tr><th>Last Login</th><td>{{ user.last_login|date:"M d, Y H:i" }}</td></tr>
+        <tr><th>Is Staff?</th><td>
+            {% if user.is_staff %}
+                <span class="text-success">✅ Yes (can access /admin/)</span>
+            {% else %}
+                ❌ No
+            {% endif %}
+        </td></tr>
+        <tr><th>Bio</th><td>{{ profile.bio|default:"Not set" }}</td></tr>
+        <tr><th>Location</th><td>{{ profile.location|default:"Not set" }}</td></tr>
+    </table>
+</div>
+
+<div class="card">
+    <div class="card-title">Your Stats</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; text-align:center;">
+        <div style="background:#0f172a; padding:1rem; border-radius:8px;">
+            <div style="font-size:1.8rem; font-weight:700; color:#38bdf8;">{{ post_count }}</div>
+            <div class="text-muted">Total Posts</div>
+        </div>
+        <div style="background:#0f172a; padding:1rem; border-radius:8px;">
+            <div style="font-size:1.8rem; font-weight:700; color:#10b981;">{{ published_count }}</div>
+            <div class="text-muted">Published</div>
+        </div>
+    </div>
+</div>
+</div>
+
+<div>
+<div class="card">
+    <div class="card-title">Your Recent Posts</div>
+    {% for post in user_posts %}
+    <div style="padding:0.6rem 0; border-bottom:1px solid #334155; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+            <a href="{% url 'post_detail' post.pk %}" style="color:#f1f5f9;">{{ post.title }}</a>
+            <div class="text-muted" style="font-size:0.8rem;">
+                {{ post.get_status_display }} · {{ post.created_at|date:"M d" }}
+            </div>
+        </div>
+        <div style="display:flex; gap:0.4rem;">
+            <a href="{% url 'post_update' post.pk %}" class="btn btn-secondary btn-sm">Edit</a>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-muted">No posts yet. <a href="{% url 'post_create' %}">Create one!</a></p>
+    {% endfor %}
+    <div style="margin-top:1rem;">
+        <a href="{% url 'post_create' %}" class="btn btn-success btn-sm">+ New Post</a>
+        <a href="{% url 'post_list' %}" class="btn btn-secondary btn-sm">View All Posts</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-title">🔐 Authorization Concepts</div>
+    <pre># Decorator: redirect if not logged in
+@login_required
+def dashboard(request):
+    ...
+
+# Check in view
+if request.user.is_authenticated:
+    ...
+
+# Check in template
+{% verbatim %}{% if user.is_authenticated %}
+    Hello, {{ user.username }}!
+{% endif %}
+
+# Staff/admin check
+{% if user.is_staff %}
+    <a href="/admin/">Admin Panel</a>
+{% endif %}{% endverbatim %}</pre>
+</div>
+</div>
+</div>
+{% endblock %}

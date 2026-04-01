@@ -1,0 +1,86 @@
+{% extends "lab4app/base.html" %}
+{% block title %}Middleware Demo{% endblock %}
+{% block content %}
+<span class="concept-tag">CONCEPT 6 — Middleware</span>
+<h1>⚙️ Middleware Pipeline</h1>
+<p>Every request passes through the middleware stack. Check your terminal to see the logging middleware in action!</p>
+
+<div class="card">
+    <div class="card-title">🔄 The Middleware Pipeline (Visual)</div>
+    <pre>
+  Browser Request
+       │
+       ▼
+  ┌─────────────────────────────────┐
+  │  SecurityMiddleware             │  ← Adds HTTPS headers
+  ├─────────────────────────────────┤
+  │  SessionMiddleware              │  ← Loads session from DB
+  ├─────────────────────────────────┤
+  │  CommonMiddleware               │  ← URL normalization
+  ├─────────────────────────────────┤
+  │  CsrfViewMiddleware             │  ← Validates CSRF tokens
+  ├─────────────────────────────────┤
+  │  AuthenticationMiddleware       │  ← Sets request.user
+  ├─────────────────────────────────┤
+  │  RequestLoggingMiddleware ← OUR │  ← Logs + times requests
+  ├─────────────────────────────────┤
+  │  CustomErrorMiddleware    ← OUR │  ← Catches exceptions
+  └─────────────────────────────────┘
+       │
+       ▼
+    Your VIEW function
+       │
+       ▼
+  (Response travels back UP through middleware in reverse)
+    </pre>
+</div>
+
+<div class="grid-2">
+<div class="card">
+    <div class="card-title">📋 Our Custom Middleware Code</div>
+    <pre>class RequestLoggingMiddleware:
+    def __init__(self, get_response):
+        # Called ONCE at startup
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # ── BEFORE the view ──
+        start = time.time()
+        user = request.user.username
+
+        # Call next middleware / view
+        response = self.get_response(request)
+
+        # ── AFTER the view ──
+        ms = (time.time() - start) * 1000
+        print(f"[{response.status_code}]"
+              f" {request.path} {ms:.1f}ms")
+
+        # Add custom header to response
+        response['X-Processing-Time'] = f"{ms:.1f}ms"
+        return response</pre>
+</div>
+
+<div>
+<div class="card">
+    <div class="card-title">🛡️ Security Headers Added By Middleware</div>
+    <p class="text-muted">These headers are on every response:</p>
+    <table>
+        <tr><th>Header</th><th>Purpose</th></tr>
+        <tr><td><code>X-Content-Type-Options</code></td><td>Prevents MIME sniffing</td></tr>
+        <tr><td><code>X-Frame-Options</code></td><td>Blocks clickjacking</td></tr>
+        <tr><td><code>Referrer-Policy</code></td><td>Controls referrer info</td></tr>
+        <tr><td><code>X-Processing-Time</code></td><td>Our custom timing header</td></tr>
+    </table>
+    <p class="text-muted" style="margin-top:0.75rem; font-size:0.85rem;">Open DevTools → Network tab → click this page → Headers to see them!</p>
+</div>
+
+<div class="card">
+    <div class="card-title">💥 Error Middleware Test</div>
+    <p>Click to trigger an intentional exception and see the error middleware handle it:</p>
+    <a href="{% url 'trigger_error' %}" class="btn btn-danger btn-sm">Trigger Test Error →</a>
+    <p class="text-muted" style="margin-top:0.75rem; font-size:0.85rem;">In DEBUG=True mode, Django shows a detailed error page. In production (DEBUG=False), it shows a friendly 500 page instead.</p>
+</div>
+</div>
+</div>
+{% endblock %}

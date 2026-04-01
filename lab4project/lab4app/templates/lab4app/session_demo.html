@@ -1,0 +1,60 @@
+{% extends "lab4app/base.html" %}
+{% block title %}Session Demo{% endblock %}
+{% block content %}
+<span class="concept-tag">CONCEPT 3 — Sessions & Cookies</span>
+<h1>Session Management</h1>
+<p>Sessions let Django "remember" data about a user across multiple requests.</p>
+
+<div class="grid-2">
+<div class="card">
+    <div class="card-title">💾 Current Session Data</div>
+    <table>
+        <tr><th>Session Key (ID)</th><td style="font-size:0.75rem; word-break:break-all;">{{ session_data.session_key|default:"None" }}</td></tr>
+        <tr><th>Username in session</th><td><code>{{ session_data.username }}</code></td></tr>
+        <tr><th>Visit Count</th><td><code>{{ session_data.visit_count }}</code></td></tr>
+        <tr><th>Last Page</th><td><code>{{ session_data.last_page }}</code></td></tr>
+    </table>
+</div>
+
+<div class="card">
+    <div class="card-title">🎮 Session Actions</div>
+    <p class="text-muted">Set data with your name:</p>
+    <form method="get" action="" style="display:flex; gap:0.5rem; margin-bottom:1rem;">
+        <input type="hidden" name="action" value="set">
+        <input type="text" name="name" placeholder="Your name" class="form-control" style="flex:1;">
+        <button type="submit" class="btn btn-primary">Set Session</button>
+    </form>
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+        <a href="?action=delete" class="btn btn-secondary btn-sm">Delete Username</a>
+        <a href="?action=clear" class="btn btn-danger btn-sm">Clear All Session</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-title">📖 How Sessions Work</div>
+    <pre># In views.py:
+
+# WRITE to session
+request.session['cart'] = ['item1', 'item2']
+request.session['user_pref'] = 'dark'
+
+# READ from session
+cart = request.session.get('cart', [])
+
+# DELETE from session
+del request.session['cart']
+
+# CLEAR everything
+request.session.flush()
+
+# Sessions are stored in the DATABASE
+# Browser gets a "sessionid" COOKIE
+# Django looks up that ID in the DB</pre>
+</div>
+
+<div class="card">
+    <div class="card-title">🛒 Practical Example: Shopping Cart</div>
+    <p>See sessions in action with a <a href="{% url 'cart_view' %}">shopping cart →</a></p>
+</div>
+</div>
+{% endblock %}

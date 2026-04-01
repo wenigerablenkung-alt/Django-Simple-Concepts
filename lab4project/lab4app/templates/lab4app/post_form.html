@@ -1,0 +1,39 @@
+{% extends "lab4app/base.html" %}
+{% block title %}{{ action }} Post{% endblock %}
+{% block content %}
+<span class="concept-tag">CRUD — {{ action }}</span>
+<h1>{{ action }} Post</h1>
+<div class="card">
+<form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="form-group">
+        <label>{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}<small class="text-muted">{{ field.help_text }}</small>{% endif %}
+        {% for error in field.errors %}<p style="color:#ef4444; font-size:0.85rem;">⚠️ {{ error }}</p>{% endfor %}
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-success">{{ action }} Post</button>
+    <a href="{% url 'post_list' %}" class="btn btn-secondary">Cancel</a>
+</form>
+</div>
+<div class="card">
+<div class="card-title">📖 ModelForm Code</div>
+<pre>class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['title', 'content', 'status', 'categories']
+
+# Create (view):
+form = PostForm(request.POST)
+if form.is_valid():
+    post = form.save(commit=False)
+    post.author = request.user  # Set extra field
+    post.save()
+    form.save_m2m()  # Save ManyToMany
+
+# Update (view):
+form = PostForm(request.POST, instance=post)</pre>
+</div>
+{% endblock %}

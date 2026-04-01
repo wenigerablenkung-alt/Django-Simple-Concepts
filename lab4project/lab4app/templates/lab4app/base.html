@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Django Learning App{% endblock %}</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+        nav { background: #1e293b; border-bottom: 1px solid #334155; padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
+        .nav-brand { font-size: 1.2rem; font-weight: 700; color: #38bdf8; text-decoration: none; }
+        .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { color: #94a3b8; text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+        .nav-links a:hover { color: #e2e8f0; }
+        .badge { background: #0ea5e9; color: white; padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; }
+        .container { max-width: 960px; margin: 0 auto; padding: 2rem; }
+        .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .card-title { font-size: 1.2rem; font-weight: 600; color: #f1f5f9; margin-bottom: 0.75rem; }
+        h1 { font-size: 2rem; font-weight: 700; color: #f1f5f9; margin-bottom: 0.5rem; }
+        h2 { font-size: 1.5rem; font-weight: 600; color: #f1f5f9; margin-bottom: 1rem; }
+        p { color: #94a3b8; line-height: 1.6; margin-bottom: 0.75rem; }
+        .btn { display: inline-block; padding: 0.5rem 1.2rem; border-radius: 8px; font-size: 0.9rem; font-weight: 500; cursor: pointer; border: none; text-decoration: none; transition: all 0.2s; }
+        .btn-primary { background: #0ea5e9; color: white; }
+        .btn-primary:hover { background: #0284c7; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-secondary { background: #334155; color: #e2e8f0; }
+        .btn-sm { padding: 0.3rem 0.75rem; font-size: 0.8rem; }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 0.4rem; }
+        .form-control { width: 100%; background: #0f172a; border: 1px solid #334155; color: #e2e8f0; padding: 0.6rem 0.9rem; border-radius: 8px; font-size: 0.95rem; }
+        .form-control:focus { outline: none; border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14,165,233,0.15); }
+        .alert { padding: 0.8rem 1.2rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9rem; }
+        .alert-success { background: rgba(16,185,129,0.15); border: 1px solid #10b981; color: #6ee7b7; }
+        .alert-error, .alert-danger { background: rgba(239,68,68,0.15); border: 1px solid #ef4444; color: #fca5a5; }
+        .alert-info { background: rgba(14,165,233,0.15); border: 1px solid #0ea5e9; color: #7dd3fc; }
+        .alert-warning { background: rgba(245,158,11,0.15); border: 1px solid #f59e0b; color: #fcd34d; }
+        .concept-tag { display: inline-block; background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); padding: 2px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.75rem; }
+        code, pre { font-family: 'Courier New', monospace; background: #0f172a; color: #7dd3fc; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+        pre { padding: 1rem; border-radius: 8px; overflow-x: auto; border: 1px solid #334155; line-height: 1.5; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.6rem 1rem; text-align: left; border-bottom: 1px solid #334155; font-size: 0.9rem; }
+        th { color: #94a3b8; font-weight: 500; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .text-muted { color: #64748b; font-size: 0.85rem; }
+        .text-success { color: #10b981; }
+        .text-danger { color: #ef4444; }
+        .errorlist { list-style: none; color: #fca5a5; font-size: 0.85rem; margin-top: 0.3rem; }
+        a { color: #38bdf8; }
+    </style>
+</head>
+<body>
+<nav>
+    <a class="nav-brand" href="{% url 'home' %}">🎓 Django Learning</a>
+    <div class="nav-links">
+        <a href="{% url 'request_demo' %}">Requests</a>
+        <a href="{% url 'form_demo' %}">Forms</a>
+        <a href="{% url 'session_demo' %}">Sessions</a>
+        <a href="{% url 'post_list' %}">Posts</a>
+        <a href="{% url 'middleware_demo' %}">Middleware</a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}">👤 {{ user.username }}</a>
+            <form method="post" action="{% url 'logout' %}" style="display:inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-secondary btn-sm">Logout</button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}" class="btn btn-primary btn-sm">Login</a>
+            <a href="{% url 'register' %}" class="btn btn-secondary btn-sm">Register</a>
+        {% endif %}
+    </div>
+</nav>
+
+<div class="container">
+    <!-- Flash messages from messages.success(), messages.error(), etc. -->
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    <!-- Child templates fill this block -->
+    {% block content %}{% endblock %}
+</div>
+
+</body>
+</html>

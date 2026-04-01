@@ -1,0 +1,36 @@
+{% extends "lab4app/base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<span class="concept-tag">CONCEPT 5 — Authentication & Authorization</span>
+<div style="max-width:480px; margin:2rem auto;">
+<div class="card">
+    <h2>Create Account</h2>
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-group">
+            <label>{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<small class="text-muted">{{ field.help_text }}</small>{% endif %}
+            {% for error in field.errors %}<p style="color:#ef4444; font-size:0.85rem;">⚠️ {{ error }}</p>{% endfor %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-success" style="width:100%;">Create Account</button>
+    </form>
+    <p class="text-muted" style="text-align:center; margin-top:1rem;">Already have an account? <a href="{% url 'login' %}">Login</a></p>
+</div>
+<div class="card">
+    <div class="card-title">🔐 What happens when you register?</div>
+    <pre>user = form.save(commit=False)
+user.email = form.cleaned_data['email']
+user.save()
+# Password is HASHED (bcrypt), never stored plain
+
+# Auto-login after registration
+login(request, user)  # Creates session
+
+# User object is now in request.user
+# Template: {{ user.username }}</pre>
+</div>
+</div>
+{% endblock %}

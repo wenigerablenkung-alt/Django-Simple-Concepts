@@ -1,0 +1,99 @@
+{% extends "lab4app/base.html" %}
+{% block title %}Request Demo{% endblock %}
+{% block content %}
+<span class="concept-tag">CONCEPT 1 — Requests & Responses</span>
+<h1>HTTP Request Inspector</h1>
+<p>Everything Django gives you inside the <code>request</code> object.</p>
+
+{% if message %}
+    <div class="alert alert-success">{{ message }}</div>
+{% endif %}
+
+<div class="grid-2">
+<div>
+<div class="card">
+    <div class="card-title">📥 Incoming Request Info</div>
+    <table>
+        <tr><th>HTTP Method</th><td><code>{{ info.method }}</code></td></tr>
+        <tr><th>User</th><td><code>{{ info.user }}</code></td></tr>
+        <tr><th>Authenticated?</th><td>
+            {% if info.is_authenticated %}
+                <span class="text-success">✅ Yes</span>
+            {% else %}
+                <span class="text-danger">❌ No</span>
+            {% endif %}
+        </td></tr>
+        <tr><th>User Agent</th><td style="font-size:0.8rem; word-break:break-all;">{{ info.user_agent|truncatechars:60 }}</td></tr>
+        <tr><th>IP Address</th><td><code>{{ info.remote_addr }}</code></td></tr>
+        <tr><th>Session Key</th><td style="font-size:0.75rem; word-break:break-all;">{{ info.session_key|default:"None" }}</td></tr>
+    </table>
+</div>
+
+<div class="card">
+    <div class="card-title">🍪 Cookies</div>
+    {% if info.cookies %}
+        <table>
+        {% for key, val in info.cookies.items %}
+            <tr><th>{{ key }}</th><td style="font-size:0.8rem; word-break:break-all;">{{ val|truncatechars:50 }}</td></tr>
+        {% endfor %}
+        </table>
+    {% else %}
+        <p class="text-muted">No cookies set yet. Send a POST to set one!</p>
+    {% endif %}
+</div>
+</div>
+
+<div>
+<div class="card">
+    <div class="card-title">🔍 GET Parameters</div>
+    <p class="text-muted">Add <code>?name=Alice&age=30</code> to the URL to see them here.</p>
+    {% if info.get_params %}
+        <table>
+        {% for key, vals in info.get_params.items %}
+            <tr><th>{{ key }}</th><td><code>{{ vals|join:", " }}</code></td></tr>
+        {% endfor %}
+        </table>
+    {% else %}
+        <p class="text-muted">No GET params. Try: <a href="?name=Alice&city=Kathmandu">?name=Alice&city=Kathmandu</a></p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-title">📤 Test Responses</div>
+
+    <div style="margin-bottom:1rem;">
+        <p class="text-muted" style="font-size:0.85rem;">Send a POST request (sets a cookie in response):</p>
+        <form method="POST">
+            {% csrf_token %}
+            <!-- csrf_token: Django adds a hidden field to prevent CSRF attacks -->
+            <!-- Without this, Django rejects the POST with a 403 Forbidden -->
+            <button type="submit" class="btn btn-primary">Send POST Request</button>
+        </form>
+    </div>
+
+    <div>
+        <p class="text-muted" style="font-size:0.85rem;">GET with query string:</p>
+        <a href="?search=django&filter=active" class="btn btn-secondary">Add ?search=django&filter=active</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-title">📖 What's happening in the code?</div>
+    <pre>def request_demo(request):
+    # request.method = 'GET' or 'POST'
+    # request.GET    = URL parameters dict
+    # request.POST   = Form data dict
+    # request.COOKIES = Browser cookies
+    # request.session = Server-side storage
+    # request.user    = Logged-in user
+    
+    if request.method == 'POST':
+        response = render(request, template, ctx)
+        response.set_cookie('key', 'value')
+        return response
+    
+    return render(request, template, ctx)</pre>
+</div>
+</div>
+</div>
+{% endblock %}
